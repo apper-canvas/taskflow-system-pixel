@@ -10,7 +10,7 @@ const getApperClient = () => {
 };
 
 export const projectService = {
-  async getAll() {
+async getAll() {
     try {
       const apperClient = getApperClient();
       const params = {

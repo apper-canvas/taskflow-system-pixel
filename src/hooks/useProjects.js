@@ -7,11 +7,11 @@ export const useProjects = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadProjects = async () => {
+const loadProjects = async () => {
     try {
       setLoading(true);
       setError('');
-      const fetchedProjects = await projectService.getProjectsWithTaskCounts();
+      const fetchedProjects = await projectService.getAll();
       setProjects(fetchedProjects);
     } catch (err) {
       setError(err.message);
