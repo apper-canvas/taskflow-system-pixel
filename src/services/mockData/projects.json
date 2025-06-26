@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "name": "Strategy Planning",
+    "color": "#5B21B6",
+    "taskCount": 2,
+    "createdAt": "2024-12-15T09:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "name": "Client Projects",
+    "color": "#EF4444",
+    "taskCount": 2,
+    "createdAt": "2024-12-16T10:30:00.000Z"
+  },
+  {
+    "id": "3",
+    "name": "Reporting",
+    "color": "#10B981",
+    "taskCount": 1,
+    "createdAt": "2024-12-17T14:15:00.000Z"
+  },
+  {
+    "id": "4",
+    "name": "Development",
+    "color": "#3B82F6",
+    "taskCount": 3,
+    "createdAt": "2024-12-18T11:45:00.000Z"
+  },
+  {
+    "id": "5",
+    "name": "Personal",
+    "color": "#F59E0B",
+    "taskCount": 0,
+    "createdAt": "2024-12-19T16:20:00.000Z"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "1",
+    "title": "Review Q4 budget proposal",
+    "completed": false,
+    "projectId": "1",
+    "dueDate": "2024-12-28T00:00:00.000Z",
+    "priority": 1,
+    "createdAt": "2024-12-20T09:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "2",
+    "title": "Schedule team meeting for project kickoff",
+    "completed": false,
+    "projectId": "1",
+    "dueDate": "2024-12-27T00:00:00.000Z",
+    "priority": 2,
+    "createdAt": "2024-12-20T10:30:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "3",
+    "title": "Update client presentation slides",
+    "completed": true,
+    "projectId": "2",
+    "dueDate": "2024-12-26T00:00:00.000Z",
+    "priority": 1,
+    "createdAt": "2024-12-19T14:15:00.000Z",
+    "completedAt": "2024-12-25T16:45:00.000Z"
+  },
+  {
+    "id": "4",
+    "title": "Research competitor analysis",
+    "completed": false,
+    "projectId": "2",
+    "dueDate": "2024-12-30T00:00:00.000Z",
+    "priority": 3,
+    "createdAt": "2024-12-21T11:20:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "5",
+    "title": "Prepare monthly report",
+    "completed": false,
+    "projectId": "3",
+    "dueDate": "2024-12-31T00:00:00.000Z",
+    "priority": 2,
+    "createdAt": "2024-12-22T08:45:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "6",
+    "title": "Code review for authentication module",
+    "completed": true,
+    "projectId": "4",
+    "dueDate": "2024-12-24T00:00:00.000Z",
+    "priority": 1,
+    "createdAt": "2024-12-18T13:30:00.000Z",
+    "completedAt": "2024-12-23T15:20:00.000Z"
+  },
+  {
+    "id": "7",
+    "title": "Test mobile app responsiveness",
+    "completed": false,
+    "projectId": "4",
+    "dueDate": "2024-12-29T00:00:00.000Z",
+    "priority": 2,
+    "createdAt": "2024-12-21T16:10:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "8",
+    "title": "Setup development environment",
+    "completed": true,
+    "projectId": "4",
+    "dueDate": null,
+    "priority": 3,
+    "createdAt": "2024-12-17T12:00:00.000Z",
+    "completedAt": "2024-12-20T14:30:00.000Z"
+  }
+]
