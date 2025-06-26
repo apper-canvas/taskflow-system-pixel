@@ -8,7 +8,7 @@ export const useTasks = (filters = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadTasks = async () => {
+const loadTasks = async () => {
     try {
       setLoading(true);
       setError('');
@@ -17,13 +17,16 @@ export const useTasks = (filters = {}) => {
       const allFetchedTasks = await taskService.getAll();
       setAllTasks(allFetchedTasks);
       
-      let fetchedTasks = [...allFetchedTasks];
+      let fetchedTasks;
       
-      // Apply display filters
+      // Use project-specific API endpoint when project is selected
       if (filters.projectId) {
-        fetchedTasks = fetchedTasks.filter(task => task.projectId === filters.projectId);
+        fetchedTasks = await taskService.getByProject(filters.projectId);
+      } else {
+        fetchedTasks = [...allFetchedTasks];
       }
       
+      // Apply display filters (only for non-project specific filters)
       if (filters.overdue) {
         const now = new Date();
         fetchedTasks = fetchedTasks.filter(task => 
