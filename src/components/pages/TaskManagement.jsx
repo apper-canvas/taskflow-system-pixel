@@ -22,8 +22,9 @@ const TaskManagement = () => {
     search: searchQuery
   }), [filters, selectedProjectId, searchQuery]);
   
-  const { 
+const { 
     tasks, 
+    allTasks,
     loading: tasksLoading, 
     error: tasksError, 
     createTask, 
@@ -39,17 +40,17 @@ const TaskManagement = () => {
     refetch: refetchProjects
   } = useProjects();
   
-  // Calculate task statistics
+// Calculate task statistics using all tasks for accurate counts
   const taskStats = useMemo(() => {
-    // Get all tasks without filters for accurate stats
-    const allTasksStats = getTaskStats(tasks);
+    // Use allTasks for statistics to ensure consistent counts
+    const allTasksStats = getTaskStats(allTasks);
     
-    // Add specific counts
-    const todayTasks = tasks.filter(task => 
+    // Add specific counts from all tasks
+    const todayTasks = allTasks.filter(task => 
       !task.completed && isDueToday(task.dueDate)
     ).length;
     
-    const overdueTasks = tasks.filter(task => 
+    const overdueTasks = allTasks.filter(task => 
       !task.completed && isOverdue(task.dueDate)
     ).length;
     
@@ -58,7 +59,7 @@ const TaskManagement = () => {
       today: todayTasks,
       overdue: overdueTasks
     };
-  }, [tasks]);
+  }, [allTasks]);
   
   // Handle task creation
   const handleCreateTask = async (taskData) => {

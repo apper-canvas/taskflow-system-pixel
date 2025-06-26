@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 
 export const useTasks = (filters = {}) => {
   const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -12,16 +13,31 @@ export const useTasks = (filters = {}) => {
       setLoading(true);
       setError('');
       
-      let fetchedTasks;
+      // Always fetch all tasks first for accurate statistics
+      const allFetchedTasks = await taskService.getAll();
+      setAllTasks(allFetchedTasks);
       
+      let fetchedTasks = [...allFetchedTasks];
+      
+      // Apply display filters
       if (filters.projectId) {
-        fetchedTasks = await taskService.getByProject(filters.projectId);
-      } else if (filters.overdue) {
-        fetchedTasks = await taskService.getOverdue();
-      } else if (filters.today) {
-        fetchedTasks = await taskService.getToday();
-      } else {
-        fetchedTasks = await taskService.getAll();
+        fetchedTasks = fetchedTasks.filter(task => task.projectId === filters.projectId);
+      }
+      
+      if (filters.overdue) {
+        const now = new Date();
+        fetchedTasks = fetchedTasks.filter(task => 
+          !task.completed && 
+          task.dueDate && 
+          new Date(task.dueDate) < now && 
+          !isDueToday(task.dueDate)
+        );
+      }
+      
+      if (filters.today) {
+        fetchedTasks = fetchedTasks.filter(task => 
+          !task.completed && isDueToday(task.dueDate)
+        );
       }
       
       // Apply additional filters
@@ -51,6 +67,14 @@ export const useTasks = (filters = {}) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function for date checking
+  const isDueToday = (date) => {
+    if (!date) return false;
+    const today = new Date();
+    const taskDate = new Date(date);
+    return taskDate.toDateString() === today.toDateString();
   };
 
   const createTask = async (taskData) => {
@@ -120,8 +144,9 @@ export const useTasks = (filters = {}) => {
     loadTasks();
   }, [filters.projectId, filters.overdue, filters.today, filters.completed, filters.search]);
 
-  return {
+return {
     tasks,
+    allTasks,
     loading,
     error,
     createTask,
