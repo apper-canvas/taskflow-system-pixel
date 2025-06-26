@@ -97,10 +97,13 @@ const ProjectSidebar = ({
           </div>
           
           {/* All Tasks Option */}
-          <motion.button
+<motion.button
             onClick={() => {
               onProjectSelect(null);
-              setIsSidebarOpen(false);
+              // Only close sidebar on mobile
+              if (window.innerWidth < 1024) {
+                setIsSidebarOpen(false);
+              }
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 mb-2 ${
               !selectedProjectId
@@ -132,11 +135,14 @@ const ProjectSidebar = ({
             <div className="space-y-2">
               <AnimatePresence>
                 {projects.map((project, index) => (
-                  <motion.button
+<motion.button
                     key={project.id}
                     onClick={() => {
                       onProjectSelect(project.id);
-                      setIsSidebarOpen(false);
+                      // Only close sidebar on mobile
+                      if (window.innerWidth < 1024) {
+                        setIsSidebarOpen(false);
+                      }
                     }}
                     className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
                       selectedProjectId === project.id
