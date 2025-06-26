@@ -120,7 +120,136 @@ export const formatDateForInput = (date) => {
     if (!isValid(parsedDate)) return '';
     
     return format(parsedDate, 'yyyy-MM-dd');
+return format(parsedDate, 'yyyy-MM-dd');
   } catch (error) {
     return '';
   }
+};
+
+// Calendar-specific helper functions
+export const startOfMonth = (date) => {
+  const start = new Date(date);
+  start.setDate(1);
+  start.setHours(0, 0, 0, 0);
+  return start;
+};
+
+export const endOfMonth = (date) => {
+  const end = new Date(date);
+  end.setMonth(end.getMonth() + 1);
+  end.setDate(0);
+  end.setHours(23, 59, 59, 999);
+  return end;
+};
+
+export const startOfWeek = (date) => {
+  const start = new Date(date);
+  const day = start.getDay();
+  const diff = start.getDate() - day;
+  start.setDate(diff);
+  start.setHours(0, 0, 0, 0);
+  return start;
+};
+
+export const addMonths = (date, months) => {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+};
+
+export const addDays = (date, days) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+};
+
+export const isSameDay = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  
+  try {
+    const d1 = typeof date1 === 'string' ? parseISO(date1) : date1;
+    const d2 = typeof date2 === 'string' ? parseISO(date2) : date2;
+    
+    if (!isValid(d1) || !isValid(d2)) return false;
+    
+    return d1.toDateString() === d2.toDateString();
+  } catch (error) {
+    return false;
+  }
+};
+
+export const isSameMonth = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  
+  try {
+    const d1 = typeof date1 === 'string' ? parseISO(date1) : date1;
+    const d2 = typeof date2 === 'string' ? parseISO(date2) : date2;
+    
+    if (!isValid(d1) || !isValid(d2)) return false;
+    
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+  } catch (error) {
+    return false;
+  }
+};
+
+export const formatMonthYear = (date) => {
+  if (!date) return '';
+  
+  try {
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (!isValid(parsedDate)) return '';
+    
+    return format(parsedDate, 'MMMM yyyy');
+  } catch (error) {
+    return '';
+  }
+};
+
+export const formatDayOfMonth = (date) => {
+  if (!date) return '';
+  
+  try {
+    const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+    if (!isValid(parsedDate)) return '';
+    
+    return format(parsedDate, 'd');
+  } catch (error) {
+    return '';
+  }
+};
+
+export const getCalendarDays = (date) => {
+  const month = new Date(date);
+  const firstDay = startOfMonth(month);
+  const lastDay = endOfMonth(month);
+  const startDay = startOfWeek(firstDay);
+  
+  const days = [];
+  let currentDay = new Date(startDay);
+  
+  // Generate 6 weeks (42 days) to ensure full calendar grid
+  for (let i = 0; i < 42; i++) {
+    days.push(new Date(currentDay));
+    currentDay = addDays(currentDay, 1);
+  }
+  
+  return days;
+};
+
+export const getTasksForDate = (tasks, date) => {
+  if (!tasks || !date) return [];
+  
+  return tasks.filter(task => {
+    if (!task.dueDate) return false;
+    return isSameDay(task.dueDate, date);
+  });
+};
+
+export const getDateStatus = (date) => {
+  const today = new Date();
+  
+  if (isSameDay(date, today)) return 'today';
+  if (isPast(date) && !isSameDay(date, today)) return 'past';
+  return 'future';
 };

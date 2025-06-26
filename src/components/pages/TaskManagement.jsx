@@ -1,14 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import Header from '@/components/organisms/Header';
-import ProjectSidebar from '@/components/organisms/ProjectSidebar';
-import TaskQuickAdd from '@/components/molecules/TaskQuickAdd';
-import FilterBar from '@/components/molecules/FilterBar';
-import TaskList from '@/components/organisms/TaskList';
-import { useTasks } from '@/hooks/useTasks';
-import { useProjects } from '@/hooks/useProjects';
-import { getTaskStats } from '@/utils/taskHelpers';
-import { isOverdue, isDueToday } from '@/utils/dateHelpers';
+import React, { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import CalendarWidget from "@/components/organisms/CalendarWidget";
+import { useTasks } from "@/hooks/useTasks";
+import { useProjects } from "@/hooks/useProjects";
+import { isDueToday, isOverdue } from "@/utils/dateHelpers";
+import { getTaskStats } from "@/utils/taskHelpers";
+import FilterBar from "@/components/molecules/FilterBar";
+import TaskQuickAdd from "@/components/molecules/TaskQuickAdd";
+import Header from "@/components/organisms/Header";
+import TaskList from "@/components/organisms/TaskList";
+import ProjectSidebar from "@/components/organisms/ProjectSidebar";
 
 const TaskManagement = () => {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
@@ -183,14 +184,24 @@ const {
                       ? "All caught up! No pending tasks."
                       : filters.today
                         ? "Nothing due today. Great job staying ahead!"
-                        : filters.overdue
+: filters.overdue
                           ? "Excellent! No overdue tasks."
                           : searchQuery
                             ? "Try a different search term or check your spelling."
                             : "Create your first task to get started!"
               }
             />
-          </div>
+            
+            {/* Calendar Widget */}
+            <CalendarWidget
+              tasks={allTasks}
+              loading={tasksLoading}
+              onTaskClick={(task) => {
+                // Future enhancement: could open task details modal
+                console.log('Task clicked:', task);
+              }}
+            />
+</div>
         </motion.main>
       </div>
     </div>
