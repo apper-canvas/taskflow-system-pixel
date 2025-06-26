@@ -1,96 +1,278 @@
-import projectData from '@/services/mockData/projects.json';
-import { taskService } from '@/services/api/taskService';
+import { toast } from 'react-toastify';
 
-let projects = [...projectData];
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Initialize ApperClient
+const getApperClient = () => {
+  const { ApperClient } = window.ApperSDK;
+  return new ApperClient({
+    apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+    apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+  });
+};
 
 export const projectService = {
   async getAll() {
-    await delay(250);
-    return [...projects];
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "color" } },
+          { field: { Name: "task_count" } },
+          { field: { Name: "created_at" } }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords('project', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+      
+      // Map database fields to UI format
+      return response.data.map(project => ({
+        id: project.Id.toString(),
+        name: project.Name,
+        color: project.color || '#5B21B6',
+        taskCount: project.task_count || 0,
+        createdAt: project.created_at
+      }));
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      toast.error("Failed to load projects");
+      return [];
+    }
   },
 
   async getById(id) {
-    await delay(200);
-    const project = projects.find(p => p.id === id);
-    if (!project) {
-      throw new Error('Project not found');
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "color" } },
+          { field: { Name: "task_count" } },
+          { field: { Name: "created_at" } }
+        ]
+      };
+      
+      const response = await apperClient.getRecordById('project', parseInt(id), params);
+      
+      if (!response.success || !response.data) {
+        throw new Error('Project not found');
+      }
+      
+      // Map database fields to UI format
+      const project = response.data;
+      return {
+        id: project.Id.toString(),
+        name: project.Name,
+        color: project.color || '#5B21B6',
+        taskCount: project.task_count || 0,
+        createdAt: project.created_at
+      };
+    } catch (error) {
+      console.error(`Error fetching project with ID ${id}:`, error);
+      throw error;
     }
-    return { ...project };
   },
 
   async create(projectData) {
-    await delay(300);
-    const maxId = Math.max(...projects.map(p => parseInt(p.id)), 0);
-    const newProject = {
-      id: (maxId + 1).toString(),
-      name: projectData.name,
-      color: projectData.color || '#5B21B6',
-      taskCount: 0,
-      createdAt: new Date().toISOString(),
-      ...projectData
-    };
-    projects.push(newProject);
-    return { ...newProject };
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        records: [
+          {
+            Name: projectData.name,
+            color: projectData.color || '#5B21B6',
+            task_count: 0,
+            created_at: new Date().toISOString()
+          }
+        ]
+      };
+      
+      const response = await apperClient.createRecord('project', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} projects:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulRecords.length > 0) {
+          const project = successfulRecords[0].data;
+          return {
+            id: project.Id.toString(),
+            name: project.Name,
+            color: project.color || '#5B21B6',
+            taskCount: project.task_count || 0,
+            createdAt: project.created_at
+          };
+        }
+      }
+      
+      throw new Error('Failed to create project');
+    } catch (error) {
+      console.error("Error creating project:", error);
+      throw error;
+    }
   },
 
   async update(id, updates) {
-    await delay(200);
-    const index = projects.findIndex(p => p.id === id);
-    if (index === -1) {
-      throw new Error('Project not found');
+    try {
+      const apperClient = getApperClient();
+      const updateData = {
+        Id: parseInt(id)
+      };
+      
+      // Map UI fields to database fields (only updateable fields)
+      if (updates.name !== undefined) updateData.Name = updates.name;
+      if (updates.color !== undefined) updateData.color = updates.color;
+      if (updates.taskCount !== undefined) updateData.task_count = updates.taskCount;
+      
+      const params = {
+        records: [updateData]
+      };
+      
+      const response = await apperClient.updateRecord('project', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to update ${failedRecords.length} projects:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        if (successfulRecords.length > 0) {
+          const project = successfulRecords[0].data;
+          return {
+            id: project.Id.toString(),
+            name: project.Name,
+            color: project.color || '#5B21B6',
+            taskCount: project.task_count || 0,
+            createdAt: project.created_at
+          };
+        }
+      }
+      
+      throw new Error('Failed to update project');
+    } catch (error) {
+      console.error("Error updating project:", error);
+      throw error;
     }
-    
-    const updatedProject = {
-      ...projects[index],
-      ...updates
-    };
-    
-    projects[index] = updatedProject;
-    return { ...updatedProject };
   },
 
   async delete(id) {
-    await delay(250);
-    const index = projects.findIndex(p => p.id === id);
-    if (index === -1) {
-      throw new Error('Project not found');
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await apperClient.deleteRecord('project', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} projects:${JSON.stringify(failedDeletions)}`);
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+          throw new Error('Failed to delete project');
+        }
+      }
+      
+      return { id: id };
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      throw error;
     }
-    const deletedProject = projects.splice(index, 1)[0];
-    return { ...deletedProject };
   },
 
   async updateTaskCount(projectId, count) {
-    await delay(150);
-    const index = projects.findIndex(p => p.id === projectId);
-    if (index !== -1) {
-      projects[index].taskCount = count;
-      return { ...projects[index] };
-    }
-    return null;
+    return await this.update(projectId, { taskCount: count });
   },
 
   async getProjectsWithTaskCounts() {
-    await delay(300);
-    const projectsWithCounts = [];
-    
-    for (const project of projects) {
-      try {
-        const projectTasks = await taskService.getByProject(project.id);
-        const activeTasks = projectTasks.filter(t => !t.completed);
-        projectsWithCounts.push({
-          ...project,
-          taskCount: activeTasks.length
-        });
-      } catch (error) {
-        projectsWithCounts.push({
-          ...project,
-          taskCount: 0
-        });
+    // For database implementation, we'll get task counts via aggregators
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "color" } },
+          { field: { Name: "task_count" } },
+          { field: { Name: "created_at" } }
+        ],
+        aggregators: [
+          {
+            id: "activeTaskCounts",
+            table: { Name: "task" },
+            fields: [
+              { field: { Name: "Id" }, Function: "Count", Alias: "Count" }
+            ],
+            where: [
+              { FieldName: "completed", Operator: "EqualTo", Values: [false] }
+            ]
+          }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords('project', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
       }
+      
+      // Map database fields to UI format
+      return response.data.map(project => ({
+        id: project.Id.toString(),
+        name: project.Name,
+        color: project.color || '#5B21B6',
+        taskCount: project.task_count || 0,
+        createdAt: project.created_at
+      }));
+    } catch (error) {
+      console.error("Error fetching projects with task counts:", error);
+      toast.error("Failed to load projects");
+      return [];
     }
-    
-    return projectsWithCounts;
   }
 };

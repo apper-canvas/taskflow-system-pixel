@@ -1,21 +1,30 @@
+import { useContext } from 'react';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import ApperIcon from '@/components/ApperIcon';
+import Button from '@/components/atoms/Button';
 import SearchBar from '@/components/molecules/SearchBar';
 import ProgressIndicator from '@/components/molecules/ProgressIndicator';
+import { AuthContext } from '../../App';
 
-const Header = ({ 
+const Header = ({
   searchValue = '', 
   onSearchChange,
   onSearchClear,
   taskStats = {},
   className = '' 
 }) => {
+  const { logout } = useContext(AuthContext);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  
   const currentTime = new Date();
   const greeting = currentTime.getHours() < 12 
     ? 'Good morning' 
     : currentTime.getHours() < 17 
       ? 'Good afternoon' 
       : 'Good evening';
+  
+  const userDisplayName = user?.firstName ? `${user.firstName} ${user.lastName}` : user?.emailAddress || 'User';
   
   return (
     <motion.header
@@ -52,8 +61,7 @@ const Header = ({
               placeholder="Search your tasks..."
             />
           </div>
-          
-          {/* Right Section - Progress */}
+{/* Right Section - Progress and User */}
           <div className="flex items-center space-x-4">
             <ProgressIndicator
               completed={taskStats.completed || 0}
@@ -83,6 +91,23 @@ const Header = ({
                 </div>
               )}
             </div>
+            
+            {/* User Menu */}
+            {isAuthenticated && (
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-medium text-gray-900">{userDisplayName}</p>
+                  <p className="text-xs text-gray-500">{user?.emailAddress}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon="LogOut"
+                  onClick={logout}
+                  className="text-gray-600 hover:text-gray-800"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
